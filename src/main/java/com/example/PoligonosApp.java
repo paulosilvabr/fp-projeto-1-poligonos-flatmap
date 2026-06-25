@@ -83,14 +83,16 @@ public class PoligonosApp extends Application {
         final var scene = new Scene(root, 800, 600);
 
         pontosPoligonos.forEach(listaPontos -> {
-            final var poligono = new Polygon();
-            for (final Point point : listaPontos) {
-                poligono.getPoints().addAll(point.x(), point.y());
-            }
+            java.util.Optional.ofNullable(listaPontos)
+                .filter(pontos -> pontos.size() >= 3)
+                .ifPresent(pontos -> {
+                    final var poligono = new Polygon();
+                    pontos.forEach(point -> poligono.getPoints().addAll(point.x(), point.y()));
 
-            poligono.setFill(Color.BLUE);
-            poligono.setStroke(Color.BLACK);
-            root.getChildren().add(poligono);
+                    poligono.setFill(Color.BLUE);
+                    poligono.setStroke(Color.BLACK);
+                    root.getChildren().add(poligono);
+                });
         });
 
         final List<String> perimetros = perimetros().stream().map(p -> String.format("%.1f", p)).toList();
