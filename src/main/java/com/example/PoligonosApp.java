@@ -98,7 +98,14 @@ public class PoligonosApp extends Application {
         final List<String> perimetros = perimetros().stream().map(p -> String.format("%.1f", p)).toList();
         final var label1 = newLabel("Perímetro dos Polígonos: " + perimetros, 500);
         final var label2 = newLabel("Tipo dos Polígonos: " + tipoPoligonos(), 530);
-        root.getChildren().addAll(label1, label2);
+
+        final var maxPerimetro = perimetros().stream()
+                .max(java.util.Comparator.naturalOrder())
+                .map(p -> String.format("%.1f", p))
+                .orElse("0.0");
+        final var label3 = newLabel("Maior Perímetro (usando Comparator): " + maxPerimetro, 560);
+
+        root.getChildren().addAll(label1, label2, label3);
 
         mainStage.setTitle("Polígonos");
         mainStage.setScene(scene);
@@ -185,8 +192,19 @@ public class PoligonosApp extends Application {
     ///
     /// @return uma lista contendo o perímetro de cada polígono
     protected List<Double> perimetros(){
-        // TODO Apague esta linha e a próxima e implemente seu código
-        return List.of();
+        return pontosPoligonos.stream()
+                .flatMap(pontos -> {
+                    final Point ultimoPonto = java.util.Optional.ofNullable(pontos)
+                            .filter(p -> !p.isEmpty())
+                            .map(p -> p.get(p.size() - 1))
+                            .orElse(new Point(0, 0));
+
+                    return java.util.stream.Stream.of(
+                            pontos.stream().reduce(ultimoPonto, (p1, p2) -> new Point(p1, p2))
+                    );
+                })
+                .map(Point::distance)
+                .toList();
     }
 }
 
